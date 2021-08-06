@@ -43,7 +43,7 @@ class ServerChanNotifier(INotifier):
 
         # 调用 Server 酱接口发送消息
         sc_res_raw = self._sess.post(
-            f'https://sc.ftqq.com/{self._sckey}.send',
+            f'https://sctapi.ftqq.com/{self._sckey}.send',
             data={
                 'text': f'bupt_ncov_report运行{title}',
                 'desp': f'({time_str}) {body}',
@@ -60,7 +60,7 @@ class ServerChanNotifier(INotifier):
                 f'API 的返回是：\n{sc_res_raw.text}\n您输入的 SCKEY 为\n{self._sckey}'
             )
 
-        errno = sc_res.get('errno')
+        errno = sc_res.get('data')['errno']
         if errno != 0:
             raise RuntimeError(
                 f'Server 酱调用失败，可能您的 SCKEY 配置有误。API 的返回是：\n{sc_res}\n'
