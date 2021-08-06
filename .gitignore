@@ -97,4 +97,4 @@ dmypy.json
 *.bzip
 *.bat
 *.ps1
-*.sh
+#*.sh
