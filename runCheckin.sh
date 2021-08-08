@@ -11,4 +11,5 @@ sleep ${rnd}m
 export BUPT_SSO_USER=
 export export BUPT_SSO_PASS=
 export SERVER_CHAN_SCKEY=
-python3 main.py --stop-when-sick
+basepath=$(cd `dirname $0`; pwd)
+python3 ${basepath}/main.py --stop-when-sick
