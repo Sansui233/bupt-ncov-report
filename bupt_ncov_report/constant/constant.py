@@ -1,5 +1,5 @@
 # 上报网站的 API 的地址
-LOGIN_API = 'https://app.bupt.edu.cn/uc/wap/login/check'
+LOGIN_API = 'https://auth.bupt.edu.cn/authserver/login'
 REPORT_PAGE = 'https://app.bupt.edu.cn/ncov/wap/default/index'
 REPORT_API = 'https://app.bupt.edu.cn/ncov/wap/default/save'
 

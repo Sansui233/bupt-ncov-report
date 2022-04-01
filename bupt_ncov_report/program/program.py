@@ -4,6 +4,7 @@ __all__ = (
 
 import json
 import logging
+import re
 import sys
 import traceback
 from typing import List, Mapping, Optional, cast
@@ -119,23 +120,37 @@ class Program:
         :return: 上报 API 的返回内容。
         """
         if self._conf['BUPT_COOKIES'] is None:
-            # 登录北邮 nCoV 上报网站
-            logger.info('使用用户名密码登录北邮 nCoV 上报网站')
-            login_res = self._sess.post(LOGIN_API, data={
+            # 获取页面上的提交表单
+            login_get = self._sess.get(LOGIN_API, headers={
+                **self.COMMON_HEADERS,
+                **self.COMMON_POST_HEADERS,
+                'Referer': HEADERS.REFERER_LOGIN_API,
+            })
+            exec_code = re.search('input name="execution" value=.*/><input name="_eventId"', login_get.text)
+            exec_code = exec_code.group().replace('input name="execution" value="', '').replace('"/><input name="_eventId"', '')
+            logger.debug(f'Form: execuction={exec_code}')
+
+            # 登录北邮身份认证
+            logger.info('使用用户名密码登录北邮身份认证')
+            login_res = self._sess.post(LOGIN_API, allow_redirects=False, data={
                 'username': cast(str, self._conf['BUPT_SSO_USER']),
                 'password': cast(str, self._conf['BUPT_SSO_PASS']),
+                'submit': "LOGIN",
+                'type': "username_password",
+                'execution': exec_code,
+                '_eventId': 'submit'
             }, headers={
                 **self.COMMON_HEADERS,
                 **self.COMMON_POST_HEADERS,
                 'Referer': HEADERS.REFERER_LOGIN_API,
             })
-            if login_res.status_code != 200:
+            if login_res.status_code != 302:
                 logger.debug(f'登录页：\n'
                             f'status code: {login_res.status_code}\n'
                             f'url: {login_res.url}')
-                raise RuntimeError('登录 API 返回的 HTTP 状态码不是 200。')
+                raise RuntimeError('登录 API 返回的 HTTP 状态码不是 302。')
         else:
-            logger.info('使用 Cookie 登录北邮 nCoV 上报网站')
+            logger.info('使用 Cookie 登录北邮身份认证')
             cookies_dict={}
             for cookie in self._conf['BUPT_COOKIES'].split('; '):
                 cookies_dict[cookie.split('=')[0]]=cookie.split('=')[-1]
