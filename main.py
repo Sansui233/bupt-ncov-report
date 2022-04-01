@@ -24,6 +24,12 @@ CONFIG_SCHEMA: Dict[str, ConfigSchemaItem] = {
         default=None,
         type=str,
     ),
+    'BUPT_COOKIES': ConfigSchemaItem(
+        description='您登录过的浏览器 Cookie，包含 eai_session和  UUkey',
+        for_short='登录Cookie',
+        default=None,
+        type=str,
+    ),
     'TG_BOT_TOKEN': ConfigSchemaItem(
         description='（可选）如果您需要把执行结果通过 Telegram 机器人告知，'
                     '请设为您的 Telegram 机器人的 API Token',

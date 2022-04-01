@@ -78,10 +78,12 @@ class Program:
         :return: None
         """
 
-        # 检查 BUPT SSO 用户名、密码
-        for key in ('BUPT_SSO_USER', 'BUPT_SSO_PASS'):
-            if config[key] is None:
-                raise ValueError(f'配置 {key} 未设置。缺少此配置，该脚本无法自动登录北邮网站。')
+        # 先检查 COOKIE 设置
+        if config['BUPT_COOKIES'] is None:
+            # 检查 BUPT SSO 用户名、密码
+            for key in ('BUPT_SSO_USER', 'BUPT_SSO_PASS'):
+                if config[key] is None:
+                    raise ValueError(f'配置 {key} 未设置。缺少此配置，该脚本无法自动登录北邮网站。')
 
         # 检查 Telegram 的环境变量是否已经设置
         if (config['TG_BOT_TOKEN'] is None) != (config['TG_CHAT_ID'] is None):
@@ -116,21 +118,28 @@ class Program:
         进行信息上报的工作函数，包含本脚本主要逻辑。
         :return: 上报 API 的返回内容。
         """
-        # 登录北邮 nCoV 上报网站
-        logger.info('登录北邮 nCoV 上报网站')
-        login_res = self._sess.post(LOGIN_API, data={
-            'username': cast(str, self._conf['BUPT_SSO_USER']),
-            'password': cast(str, self._conf['BUPT_SSO_PASS']),
-        }, headers={
-            **self.COMMON_HEADERS,
-            **self.COMMON_POST_HEADERS,
-            'Referer': HEADERS.REFERER_LOGIN_API,
-        })
-        if login_res.status_code != 200:
-            logger.debug(f'登录页：\n'
-                         f'status code: {login_res.status_code}\n'
-                         f'url: {login_res.url}')
-            raise RuntimeError('登录 API 返回的 HTTP 状态码不是 200。')
+        if self._conf['BUPT_COOKIES'] is None:
+            # 登录北邮 nCoV 上报网站
+            logger.info('使用用户名密码登录北邮 nCoV 上报网站')
+            login_res = self._sess.post(LOGIN_API, data={
+                'username': cast(str, self._conf['BUPT_SSO_USER']),
+                'password': cast(str, self._conf['BUPT_SSO_PASS']),
+            }, headers={
+                **self.COMMON_HEADERS,
+                **self.COMMON_POST_HEADERS,
+                'Referer': HEADERS.REFERER_LOGIN_API,
+            })
+            if login_res.status_code != 200:
+                logger.debug(f'登录页：\n'
+                            f'status code: {login_res.status_code}\n'
+                            f'url: {login_res.url}')
+                raise RuntimeError('登录 API 返回的 HTTP 状态码不是 200。')
+        else:
+            logger.info('使用 Cookie 登录北邮 nCoV 上报网站')
+            cookies_dict={}
+            for cookie in self._conf['BUPT_COOKIES'].split('; '):
+                cookies_dict[cookie.split('=')[0]]=cookie.split('=')[-1]
+            self._sess.cookies = requests.utils.cookiejar_from_dict(cookies_dict)
 
         # 获取上报页面的数据
         report_page_res = self._sess.get(REPORT_PAGE, headers={

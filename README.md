@@ -138,6 +138,7 @@ GCP 支持通过 `requirements.txt` 自动下载依赖项，因此将所有文�
 | :---------------- | ------------------- | :----------------------------------------------------------- |
 | BUPT_SSO_USER     | --bupt-sso-user     | 您登录[北邮门户（https://my.bupt.edu.cn/）](https://my.bupt.edu.cn/)时使用的用户名，通常是您的学工号 |
 | BUPT_SSO_PASS     | --bupt-sso-pass     | 您登录[北邮门户（https://my.bupt.edu.cn/）](https://my.bupt.edu.cn/)时使用的密码 |
+| BUPT_COOKIES     | --bupt-cookies     | （优先于用户名密码）您登录[北邮门户（https://my.bupt.edu.cn/）]后存储的 cookies 字符串，每个 cookie 以 "; " 分割。**若填写此项，则前两项不会启用**|
 | TG_BOT_TOKEN      | --tg-bot-token      | （可选）如果您需要把执行结果通过 Telegram 机器人告知，请将此变量设为您的 Telegram 机器人的 API Token |
 | TG_CHAT_ID        | --tg-chat-id        | （可选）如果您需要把执行结果通过 Telegram 机器人告知，请将此变量设为您自己的用户 id |
 | BNR_LOG_PATH      | --bnr-log-path      | （可选）日志文件存放的路径，未设置则不输出日志文件。（注意日志中可能有敏感信息） |
